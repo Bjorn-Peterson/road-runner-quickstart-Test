@@ -39,7 +39,7 @@ public class PIDF {
     ExtendState extendState = ExtendState.START;
 
     PIDController controller;
-    public static double p = 0.011, i = 0.0001, d = 0.00008;
+    public static double p = 0.007, i = 0.000001, d = 0.000008;
     public static int target;
 
 
@@ -56,25 +56,25 @@ public class PIDF {
     public CRServo hang2;
 
     int extended = 565;
-    int retracted = 20;
+    int retracted = 10;
     int mid = 300;
     int shortPos = 100;
-    double collect = .6;
-    double transfer = .44;
-    double xHeight = .41;
-    double initPos = .23;
+    double collect = .45;
+    double transfer = .35;
+    double xHeight = .24;
+    double initPos = .12;
 
-    double closed = .625;
+    double closed = .627;
     double open = .42;
-    double specClosed = .54;
+    double specClosed = .608;
     double backSpec = .71;
-    double transferPos = .02;
-    double midPos = .54;
+    double transferPos = .0;
+    double midPos = .53;
     double lowerMid = .15;
     double specPos = .675;
 
-    double in = .2;
-    double out = .53;
+    double in = .4;
+    double out = .705;
 
     DigitalChannel cBeam;
     DigitalChannel dBeam;
@@ -93,7 +93,7 @@ public class PIDF {
         extend = hardwareMap.get(DcMotorEx.class, "extend");
         extend.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         extend.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        extend.setDirection(DcMotorSimple.Direction.REVERSE);
+        extend.setDirection(DcMotorSimple.Direction.FORWARD);
         lCollection = hardwareMap.get(Servo.class, "lCollection");
         rCollection = hardwareMap.get(Servo.class, "rCollection");
         rCollection.setDirection(Servo.Direction.REVERSE);
@@ -138,38 +138,29 @@ public class PIDF {
     }
 
     public void tele(boolean isRed) {
-        if (theOpMode.gamepad2.a) {
-            hang.setPower(.8);
-            hang2.setPower(-.8);
-        }
-        else if (theOpMode.gamepad2.b) {
-            hang.setPower(-.8);
-            hang2.setPower(.8);
-        }
-        else {
-            hang.setPower(0);
-            hang2.setPower(0);
-        }
         if (theOpMode.gamepad1.dpad_right) {
             sweep.setPosition(in);
         }
         else if (theOpMode.gamepad2.right_bumper) {
             sweep.setPosition(in);
         }
-        if (theOpMode.gamepad2.dpad_up) {
+        else if (theOpMode.gamepad2.left_bumper) {
+            sweep.setPosition(out);
+        }
+        if (theOpMode.gamepad2.dpad_left) {
             door.setPosition(.4);
         }
-        else if (theOpMode.gamepad2.dpad_down) {
+        else if (theOpMode.gamepad2.dpad_right) {
             door.setPosition(.15);
         }
 
-        if (theOpMode.gamepad1.left_bumper) {
+        if (theOpMode.gamepad1.left_bumper || theOpMode.gamepad2.a) {
             failTimer.reset();
             claw.setPosition(open);
            // deliveryS.setPosition(backSpec);
             extendState = ExtendState.DELIVER;
 
-        } else if (theOpMode.gamepad1.right_bumper) {
+        } else if (theOpMode.gamepad1.right_bumper || theOpMode.gamepad2.b) {
             claw.setPosition(closed);
         }
         if (theOpMode.gamepad1.dpad_up) {
@@ -203,7 +194,7 @@ public class PIDF {
                 lCollection.setPosition(xHeight);
 
                 if (theOpMode.gamepad1.dpad_left) {
-                    deliveryS.setPosition(specPos);
+                    deliveryS.setPosition(backSpec);
                     claw.setPosition(open);
                     extendState = ExtendState.SPECIMEN;
                 }
@@ -215,7 +206,6 @@ public class PIDF {
                     extendState = ExtendState.EXTEND;
                 }
                 if (theOpMode.gamepad1.y) {
-                    sweep.setPosition(out);
                     target = mid;
                     rCollection.setPosition(collect);
                     lCollection.setPosition(collect);
@@ -238,7 +228,7 @@ public class PIDF {
             // Rotate to collecting position
 
             case SPECIMEN:
-                deliveryS.setPosition(specPos);
+                deliveryS.setPosition(backSpec);
                 claw.setPosition(open);
                 if (!dBeam.getState()) {
                     transferTimer.reset();
@@ -263,7 +253,7 @@ public class PIDF {
                     lCollection.setPosition(collect);
                 }
                 if (!dBeam.getState()) {
-                    door.setPosition(.05);
+                    door.setPosition(.15);
                     collection.setPower(-.9);
                     transferTimer.reset();
                     claw.setPosition(closed);
@@ -278,14 +268,14 @@ public class PIDF {
 
                 // If we collect a specimen, retract extension, rotate to transfer position, stop collection
                 collection.setPower(.95);
-                door.setPosition(.05);
+                door.setPosition(.15);
                 rCollection.setPosition(collect);
                 lCollection.setPosition(collect);
 
                 if (!cBeam.getState()) {
                     deliveryS.setPosition(lowerMid);
                     target = retracted;
-                   // collection.setPower(0);
+                    collection.setPower(.3);
                     rCollection.setPosition(xHeight);
                     lCollection.setPosition(xHeight);
                     extendState = ExtendState.RETRACT;
@@ -310,12 +300,12 @@ public class PIDF {
                 break;
             case RETRACT:
 
-                if (((double) colorSensor.red() / colorSensor.blue()) >= 1.4 && ((double) colorSensor.red() / colorSensor.alpha() >= 1.2) && !isRed && (Math.abs(extend.getCurrentPosition())  >= 70)) {
+                if (((double) colorSensor.red() / colorSensor.blue()) >= 1.4 && ((double) colorSensor.red() / colorSensor.alpha() >= 1.3) && !isRed && (Math.abs(extend.getCurrentPosition())  >= 70)) {
                     door.setPosition(.4);
                     collection.setPower(.6);
                     extendState = ExtendState.EXTEND;
                 }
-                if ((double) colorSensor.blue() / colorSensor.red() >= 1.45 && isRed && (Math.abs(extend.getCurrentPosition())  >= 70)) {
+                if ((double) colorSensor.blue() / colorSensor.red() >= 1.42 && isRed && (Math.abs(extend.getCurrentPosition())  >= 70)) {
                     door.setPosition(.4);
                     collection.setPower(.6);
                     extendState = ExtendState.EXTEND;
@@ -323,17 +313,20 @@ public class PIDF {
 
 
                 claw.setPosition(open);
-                if (Math.abs(extend.getCurrentPosition() - retracted) < 45) {
+                if (Math.abs(extend.getCurrentPosition() - retracted) < 100) {
                     deliveryS.setPosition(transferPos);
                     rCollection.setPosition(transfer);
                     lCollection.setPosition(transfer);
-                    if (Math.abs(extend.getCurrentPosition() - retracted) < 22 && !liftTouch.getState()) {
+                    collection.setPower(0);
+                    if (Math.abs(extend.getCurrentPosition() - retracted) < 70) {
                         door.setPosition(.4);
-                        collection.setPower(.5);
+                    }
+                    if (Math.abs(extend.getCurrentPosition() - retracted) < 40 && !liftTouch.getState()) {
+                        collection.setPower(.48);
                     }
                 }
                 if (!dBeam.getState()) {
-                    door.setPosition(.05);
+                    door.setPosition(.15);
                     collection.setPower(-1);
                     transferTimer.reset();
                     claw.setPosition(closed);
@@ -393,7 +386,7 @@ public class PIDF {
         theOpMode.telemetry.addData("target", target);
         theOpMode.telemetry.addData("Current State", extendState);
         theOpMode.telemetry.addData("power", power);
-        theOpMode.telemetry.addData("door", door.getPosition());
+        theOpMode.telemetry.addData("Current Pos", curPos);
 //        theOpMode.telemetry.addData("delivery position", deliveryS.getPosition());
         if (!dBeam.getState()) {
             theOpMode.telemetry.addData("Delivery Beam", "Broken");
@@ -486,7 +479,7 @@ public class PIDF {
 
 
         //If We are Blue
-        if (((double) colorSensor.red() / colorSensor.blue()) >= 1.5 && ((double) colorSensor.red() / colorSensor.alpha() >= 1.1)) {
+        if (((double) colorSensor.red() / colorSensor.blue()) >= 1.5 && ((double) colorSensor.red() / colorSensor.alpha() >= 1.25)) {
             //If too much red is sensed AND we aren't sensing a big spike in alpha values, we spit it out
             theOpMode.telemetry.addData("Red", "");
             theOpMode.telemetry.update();
@@ -572,16 +565,16 @@ public class PIDF {
 
                     break;
                 case RETRACT:
+                    door.setPosition(.3);
                     claw.setPosition(open);
 
-                    if (Math.abs(extend.getCurrentPosition() - retracted) < 58) {
+                    if (Math.abs(extend.getCurrentPosition() - retracted) < 130) {
                         deliveryS.setPosition(transferPos);
                         rCollection.setPosition(transfer);
                         lCollection.setPosition(transfer);
-                        if (Math.abs(extend.getCurrentPosition() - retracted) < 20) {
-                            door.setPosition(.4);
+                        door.setPosition(.4);
+                        if (Math.abs(extend.getCurrentPosition() - retracted) < 45) {
                             collection.setPower(.5);
-
 
                             if (beamTimer.seconds() >= 1.5 && cBeam.getState()) {
                                 collection.setPower(0);
@@ -755,7 +748,7 @@ public class PIDF {
                     rCollection.setPosition(xHeight);
                     lCollection.setPosition(xHeight);
                 case EXTEND:
-                    target = shortPos;
+                    target = 20;
                     if (Math.abs(extend.getCurrentPosition() - target) < 40) {
                         extend.setPower(0);
                         extendState = ExtendState.START;
@@ -1451,4 +1444,326 @@ public class PIDF {
     public Action sweeperOut() {
         return new SweeperOut();
     }
+
+
+
+    public class DropSample implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            switch (extendState) {
+                case START:
+                    beamTimer.reset();
+                    deliveryS.setPosition(.8);
+                    extendState = ExtendState.EXTEND;
+                    break;
+                case EXTEND:
+                    if (beamTimer.seconds() >= .2) {
+                        claw.setPosition(open);
+                    }
+                    if (beamTimer.seconds() >= 1) {
+                        extendState = ExtendState.START;
+                        return false;
+                    }
+                    break;
+
+                default: extendState = ExtendState.START;
+            }
+            return true;
+
+        }
+    }
+    public Action dropSample() {
+        return new DropSample();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public void IURITele() {
+        if (theOpMode.gamepad2.a) {
+            hang.setPower(.8);
+            hang2.setPower(-.8);
+        }
+        else if (theOpMode.gamepad2.b) {
+            hang.setPower(-.8);
+            hang2.setPower(.8);
+        }
+        else {
+            hang.setPower(0);
+            hang2.setPower(0);
+        }
+        if (theOpMode.gamepad1.dpad_right) {
+            sweep.setPosition(in);
+        }
+        else if (theOpMode.gamepad2.right_bumper) {
+            sweep.setPosition(in);
+        }
+        else if (theOpMode.gamepad2.left_bumper) {
+            sweep.setPosition(out);
+        }
+        if (theOpMode.gamepad2.dpad_up) {
+            door.setPosition(.4);
+        }
+        else if (theOpMode.gamepad2.dpad_down) {
+            door.setPosition(.15);
+        }
+
+        if (theOpMode.gamepad1.left_bumper || theOpMode.gamepad2.a) {
+            failTimer.reset();
+            claw.setPosition(open);
+            // deliveryS.setPosition(backSpec);
+            extendState = ExtendState.DELIVER;
+
+        } else if (theOpMode.gamepad1.right_bumper || theOpMode.gamepad2.b) {
+            claw.setPosition(closed);
+        }
+        if (theOpMode.gamepad1.dpad_up) {
+            deliveryS.setPosition(backSpec);
+
+        } else if (theOpMode.gamepad1.dpad_down) {
+            deliveryS.setPosition(transferPos);
+        }
+
+        if (theOpMode.gamepad1.b) {
+            extendState = ExtendState.EJECT;
+        }
+        if (theOpMode.gamepad1.ps) {
+            extendState = ExtendState.RESET;
+        }
+        switch (extendState) {
+            case DELIVER:
+                if (failTimer.seconds() >= .3) {
+                    deliveryS.setPosition(midPos);
+                    extendState = ExtendState.START;
+                }
+                break;
+
+
+
+            //Fully Retracted in transfer position
+            case START:
+                //sweep.setPosition(0);
+                collection.setPower(0);
+                rCollection.setPosition(xHeight);
+                lCollection.setPosition(xHeight);
+
+                if (theOpMode.gamepad1.dpad_left) {
+                    deliveryS.setPosition(specPos);
+                    claw.setPosition(open);
+                    extendState = ExtendState.SPECIMEN;
+                }
+                // Start extending, turn on collection
+                if (theOpMode.gamepad1.x) {
+                    target = extended;
+                    rCollection.setPosition(xHeight);
+                    lCollection.setPosition(xHeight);
+                    extendState = ExtendState.EXTEND;
+                }
+                if (theOpMode.gamepad1.y) {
+                    target = mid;
+                    rCollection.setPosition(collect);
+                    lCollection.setPosition(collect);
+                    extendState = ExtendState.MID;
+                    collection.setPower(.95);
+                }
+
+
+                break;
+            case RESET:
+                target = -600;
+                if (!touch.getState()) {
+                    deliveryS.setPosition(midPos);
+                    extend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    extend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    target = 0;
+                    extendState = ExtendState.START;
+                }
+                break;
+            // Rotate to collecting position
+
+            case SPECIMEN:
+                deliveryS.setPosition(specPos);
+                claw.setPosition(open);
+                if (!dBeam.getState()) {
+                    transferTimer.reset();
+                    claw.setPosition(specClosed);
+                    extendState = ExtendState.SPECIMEN2;
+                }
+                break;
+
+            case SPECIMEN2:
+                if (transferTimer.seconds() >= .4) {
+                    deliveryS.setPosition(transferPos);
+                    extendState = ExtendState.START;
+                }
+                break;
+
+            case EXTEND:
+                target = extended;
+                if (Math.abs(extend.getCurrentPosition() - extended) < 180 && theOpMode.gamepad1.x) {
+                    extendState = ExtendState.EXTENDED;
+                    collection.setPower(.95);
+                    rCollection.setPosition(collect);
+                    lCollection.setPosition(collect);
+                }
+                if (!dBeam.getState()) {
+                    door.setPosition(.15);
+                    collection.setPower(-.9);
+                    transferTimer.reset();
+                    claw.setPosition(closed);
+                    extendState = ExtendState.TRANSFER;
+                    theOpMode.telemetry.addData("DBeam", "Broken");
+                    theOpMode.telemetry.update();
+                }
+
+                break;
+            case EXTENDED:
+            case MID:
+
+                // If we collect a specimen, retract extension, rotate to transfer position, stop collection
+                collection.setPower(.95);
+                door.setPosition(.15);
+                rCollection.setPosition(collect);
+                lCollection.setPosition(collect);
+
+                if (!cBeam.getState()) {
+                    deliveryS.setPosition(lowerMid);
+                    target = retracted;
+                    collection.setPower(.3);
+                    rCollection.setPosition(xHeight);
+                    lCollection.setPosition(xHeight);
+                    extendState = ExtendState.RETRACT;
+                    theOpMode.telemetry.addData("Beam", "Broken");
+
+                }
+                if (theOpMode.gamepad1.y) {
+                    target = mid;
+                    rCollection.setPosition(collect);
+                    lCollection.setPosition(collect);
+                    extendState = ExtendState.MID;
+                    collection.setPower(.95);
+                }
+                if (theOpMode.gamepad1.x) {
+                    target = extended;
+                    rCollection.setPosition(collect);
+                    lCollection.setPosition(collect);
+                    extendState = ExtendState.EXTENDED;
+                    collection.setPower(.95);
+
+                }
+                break;
+            case RETRACT:
+
+
+                claw.setPosition(open);
+                if (Math.abs(extend.getCurrentPosition() - retracted) < 100) {
+                    deliveryS.setPosition(transferPos);
+                    rCollection.setPosition(transfer);
+                    lCollection.setPosition(transfer);
+                    collection.setPower(0);
+                    if (Math.abs(extend.getCurrentPosition() - retracted) < 70) {
+                        door.setPosition(.4);
+                    }
+                    if (Math.abs(extend.getCurrentPosition() - retracted) < 40 && !liftTouch.getState()) {
+                        collection.setPower(.5);
+                    }
+                }
+                if (!dBeam.getState()) {
+                    door.setPosition(.15);
+                    collection.setPower(-1);
+                    transferTimer.reset();
+                    claw.setPosition(closed);
+                    extendState = ExtendState.TRANSFER;
+                    theOpMode.telemetry.addData("DBeam", "Broken");
+                    theOpMode.telemetry.update();
+                }
+
+                break;
+            case TRANSFER:
+
+                theOpMode.telemetry.addData("transferTimer", transferTimer);
+                theOpMode.telemetry.update();
+                target = shortPos;
+                if (transferTimer.seconds() >= .15) {
+                    collection.setPower(0);
+                    target = retracted;
+                    claw.setPosition(closed);
+                    deliveryS.setPosition(backSpec);
+                    extendState = ExtendState.START;
+                }
+                break;
+            case EJECT:
+                if (theOpMode.gamepad1.b) {
+                    collection.setPower(-.45);
+                } else {
+                    collection.setPower(0);
+                    extendState = ExtendState.START;
+                }
+                break;
+            case REJECT:
+                target = extended;
+                collection.setPower(-.6);
+                if (Math.abs(extend.getCurrentPosition() - extended) < 50 && cBeam.getState()) {
+                    collection.setPower(.95);
+                    rCollection.setPosition(collect);
+                    lCollection.setPosition(collect);
+                    extendState = ExtendState.EXTENDED;
+                }
+                break;
+
+            default:
+                extendState = ExtendState.START;
+        }
+        if (theOpMode.gamepad1.a && extendState != ExtendState.START) {
+            rCollection.setPosition(transfer);
+            lCollection.setPosition(transfer);
+            collection.setPower(0);
+            target = retracted;
+            extendState = ExtendState.START;
+        }
+        controller.setPID(p, i, d);
+        int curPos = extend.getCurrentPosition();
+        double power = controller.calculate(curPos, target);
+        extend.setPower(power);
+        // theOpMode.telemetry.addData("pos", curPos);
+        theOpMode.telemetry.addData("target", target);
+        theOpMode.telemetry.addData("Current State", extendState);
+        theOpMode.telemetry.addData("power", power);
+        theOpMode.telemetry.addData("Current Pos", curPos);
+//        theOpMode.telemetry.addData("delivery position", deliveryS.getPosition());
+        if (!dBeam.getState()) {
+            theOpMode.telemetry.addData("Delivery Beam", "Broken");
+        } else {
+            theOpMode.telemetry.addData("Delivery Beam", "Not Broken");
+        }
+        if (!cBeam.getState()) {
+            theOpMode.telemetry.addData("Collection Beam", "Broken");
+        } else {
+            theOpMode.telemetry.addData("Collection Beam", "Not Broken");
+        }
+        theOpMode.telemetry.update();
+    }
+
 }

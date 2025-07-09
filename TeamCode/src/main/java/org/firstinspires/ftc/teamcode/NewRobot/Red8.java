@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -29,30 +30,31 @@ public class Red8 extends LinearOpMode {
 
 
         Action toDeliver = drive.actionBuilder(initialPose).
-                afterDisp(1.5, lift.liftUp()).
+                afterDisp(5, autoOptimize.liftCollect()).
                 splineToLinearHeading(new Pose2d(12,24,Math.toRadians(-24)), Math.toRadians(0)).
                 build();
         Action score2 = drive.actionBuilder(new Pose2d(12, 23.5, Math.toRadians(-27))).
-                turn(Math.toRadians(25)).
+                turn(Math.toRadians(27)).
                 build();
-        Action score3 = drive.actionBuilder(initialPose).
-                turnTo(30, new TurnConstraints(30, -30, 30)).build();
+        Action score3 = drive.actionBuilder(new Pose2d(10, 19, -45)).
+                strafeToLinearHeading(new Vector2d(8, 18), Math.toRadians(-20)).
+                build();
         Action collect3 = drive.actionBuilder(initialPose).
-                strafeToLinearHeading(new Vector2d(14, 19), Math.toRadians(36)).
+                strafeToLinearHeading(new Vector2d(16.8, 18), Math.toRadians(40)).
                 build();
         Action score4 = drive.actionBuilder(new Pose2d(10, 19, -45)).
-                strafeToLinearHeading(new Vector2d(6, 17.5), Math.toRadians(-35)).
+                strafeToLinearHeading(new Vector2d(6.5, 19), Math.toRadians(-35)).
                 build();
-        Action sub = drive.actionBuilder(new Pose2d(10, 17, Math.toRadians(-10))).
-                afterDisp(4, lift.liftDown()).
-                afterDisp(55, pidf.sweeperOut()).
-                afterDisp(42, autoOptimize.speedCollect()).
-                splineTo(new Vector2d(50.5, -12), Math.toRadians(-90)).
+        Action sub = drive.actionBuilder(new Pose2d(10, 17, Math.toRadians(-27))).
+                afterDisp(3, lift.liftDown()).
+                //afterDisp(48, pidf.sweeperOut()).
+                        afterDisp(46, autoOptimize.speedCollect1()).
+                splineTo(new Vector2d(48, -15.5), Math.toRadians(-93)).
                 build();
         Action afterSub = drive.actionBuilder(new Pose2d(50,-13, Math.toRadians(-90))).
                 setReversed(true).
                 afterDisp(5.5, autoOptimize.speedCollect2()).
-                splineTo(new Vector2d(11, 16.5), Math.toRadians(140)).
+                splineTo(new Vector2d(11, 16.5), Math.toRadians(140), new TranslationalVelConstraint(MecanumDrive.PARAMS.maxWheelVel * 1.8)).
                 build();
         Action collect6 = drive.actionBuilder(new Pose2d(9, 16.5, Math.toRadians(-38))).
                 afterDisp(3, lift.liftDown()).
@@ -63,7 +65,7 @@ public class Red8 extends LinearOpMode {
         Action jk = drive.actionBuilder(new Pose2d(50,-13,Math.toRadians(-90))).
                 setReversed(true).
                 afterDisp(5.5, autoOptimize.speedCollect2()).
-                splineTo(new Vector2d(11.5, 17.5), Math.toRadians(138)).
+                splineTo(new Vector2d(11.5, 17.5), Math.toRadians(138), new TranslationalVelConstraint(MecanumDrive.PARAMS.maxWheelVel * 1.8)).
                 build();
         Action heading = drive.actionBuilder(new Pose2d(9, 16.5, Math.toRadians(-38))).
                 afterDisp(3, lift.liftDown()).
@@ -80,12 +82,12 @@ public class Red8 extends LinearOpMode {
         Action score8 = drive.actionBuilder(new Pose2d(50, -13,Math.toRadians(-90))).
                 setReversed(true).
                 afterDisp(6, autoOptimize.speedCollect2()).
-                splineTo(new Vector2d(12, 15.5), Math.toRadians(138)).
+                splineTo(new Vector2d(12, 15.5), Math.toRadians(138), new TranslationalVelConstraint(MecanumDrive.PARAMS.maxWheelVel * 1.8)).
                 build();
         Action score9 = drive.actionBuilder(new Pose2d(50, -13,Math.toRadians(-90))).
                 setReversed(true).
                 afterDisp(6, autoOptimize.speedCollect2()).
-                splineTo(new Vector2d(12, 15), Math.toRadians(138)).
+                splineTo(new Vector2d(12, 15), Math.toRadians(138), new TranslationalVelConstraint(MecanumDrive.PARAMS.maxWheelVel * 1.8)).
                 build();
         Action collect9 = drive.actionBuilder(new Pose2d(10, 18, Math.toRadians(-38))).
                 setReversed(false).
@@ -97,7 +99,7 @@ public class Red8 extends LinearOpMode {
         Action scoreLast = drive.actionBuilder(new Pose2d(50, -13, Math.toRadians(-90))).
                 setReversed(true).
                 afterDisp(6, autoOptimize.speedCollect2()).
-                splineTo(new Vector2d(9, 15), Math.toRadians(140)).
+                splineTo(new Vector2d(9, 15), Math.toRadians(140), new TranslationalVelConstraint(MecanumDrive.PARAMS.maxWheelVel * 1.8)).
                 build();
         Action num7 = drive.actionBuilder(new Pose2d(5, 15, -45)).
                 strafeToLinearHeading(new Vector2d(2, -13), -90).
@@ -115,8 +117,7 @@ public class Red8 extends LinearOpMode {
 
         Actions.runBlocking(
                 new SequentialAction(
-                        new ParallelAction(toDeliver, pidf.extendCollection()),
-                        new ParallelAction(lift.liftDown(), pidf.collectRun()),
+                        new ParallelAction(toDeliver),
                         lift.liftUp(),
                         new ParallelAction(score2, lift.liftDown(), pidf.collectRun()),
                         new ParallelAction(score3, lift.liftUp()),

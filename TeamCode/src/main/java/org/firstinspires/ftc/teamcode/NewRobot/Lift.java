@@ -159,7 +159,7 @@ public class Lift {
     public void soloControls() {
         switch (teleState) {
             case START:
-                if (theOpMode.gamepad1.right_trigger > 0.1 || theOpMode.gamepad1.left_trigger > 0.1) {
+                if (theOpMode.gamepad1.right_trigger > 0.1 || theOpMode.gamepad1.left_trigger > 0.1 || theOpMode.gamepad2.right_trigger > 0.1 || theOpMode.gamepad2.left_trigger > 0.1) {
                     teleState = TeleState.MANUAL;
                 }
                 if (!liftTouch.getState()) {
@@ -173,11 +173,22 @@ public class Lift {
                 lift2.setPower(theOpMode.gamepad1.right_trigger);
 
             }
+                else if (theOpMode.gamepad2.right_trigger > .1) {
+                    lift.setPower(theOpMode.gamepad2.right_trigger);
+                    lift2.setPower(theOpMode.gamepad2.right_trigger);
+
+                }
             else if (theOpMode.gamepad1.left_trigger > .1) {
                 lift.setPower(-theOpMode.gamepad1.left_trigger);
                 lift2.setPower(-theOpMode.gamepad1.left_trigger);
 
-            } else {
+            }
+                else if (theOpMode.gamepad2.left_trigger > .1) {
+                    lift.setPower(-theOpMode.gamepad2.left_trigger);
+                    lift2.setPower(-theOpMode.gamepad2.left_trigger);
+
+                }
+                else {
                 lift.setPower(0);
                 lift2.setPower(0);
             }
@@ -191,6 +202,11 @@ public class Lift {
                 if (theOpMode.gamepad1.right_trigger > .1) {
                     lift.setPower(theOpMode.gamepad1.right_trigger);
                     lift2.setPower(theOpMode.gamepad1.right_trigger);
+                    teleState = TeleState.MANUAL;
+                }
+                if (theOpMode.gamepad2.right_trigger > .1) {
+                    lift.setPower(theOpMode.gamepad2.right_trigger);
+                    lift2.setPower(theOpMode.gamepad2.right_trigger);
                     teleState = TeleState.MANUAL;
                 }
                 break;

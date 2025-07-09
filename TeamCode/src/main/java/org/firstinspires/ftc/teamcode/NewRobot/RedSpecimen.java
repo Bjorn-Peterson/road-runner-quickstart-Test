@@ -80,11 +80,11 @@ public class RedSpecimen extends LinearOpMode {
                 build();
         Action deliver3 = drive.actionBuilder(new Pose2d(40, 0, Math.toRadians(90))).
                 afterDisp(20, lift.liftMid()).
-                strafeToSplineHeading(new Vector2d(-4, 32.5), Math.toRadians(-90)).
+                strafeToSplineHeading(new Vector2d(-4, 33), Math.toRadians(-90)).
                 build();
         Action deliver4 = drive.actionBuilder(new Pose2d(40, 0, Math.toRadians(90))).
                 afterDisp(20, lift.liftMid()).
-                strafeToSplineHeading(new Vector2d(-6, 32.5), Math.toRadians(-90)).
+                strafeToSplineHeading(new Vector2d(-6, 33), Math.toRadians(-90)).
                 build();
         Action deliver5 = drive.actionBuilder(new Pose2d(40, 0, Math.toRadians(90))).
                 afterDisp(20, lift.liftMid()).
@@ -94,7 +94,7 @@ public class RedSpecimen extends LinearOpMode {
                 splineTo(new Vector2d(40, 20), Math.toRadians(-20)).
                 build();
         Action end = drive.actionBuilder(new Pose2d(35, 20, Math.toRadians(90))).
-                strafeTo(new Vector2d(44, 10)).
+                strafeTo(new Vector2d(44, 3)).
                 build();
 
 

@@ -27,17 +27,17 @@ public class Red9 extends LinearOpMode {
 
 
         Action toDeliver = drive.actionBuilder(initialPose).
-                afterDisp(2.5, lift.liftUp()).
-                splineToLinearHeading(new Pose2d(12,24,Math.toRadians(-24)), Math.toRadians(0)).
+                afterDisp(5, autoOptimize.liftCollect()).
+                splineToLinearHeading(new Pose2d(10,22,Math.toRadians(-19)), Math.toRadians(0)).
                 build();
         Action score2 = drive.actionBuilder(new Pose2d(12, 23.5, Math.toRadians(-27))).
-                turn(Math.toRadians(25)).
+                turn(Math.toRadians(27)).
                 build();
         Action score3 = drive.actionBuilder(new Pose2d(10, 19, -45)).
                 strafeToLinearHeading(new Vector2d(8, 18), Math.toRadians(-20)).
                 build();
         Action collect3 = drive.actionBuilder(initialPose).
-                strafeToLinearHeading(new Vector2d(16.8, 18), Math.toRadians(40)).
+                strafeToLinearHeading(new Vector2d(15, 17), Math.toRadians(47)).
                 build();
         Action score4 = drive.actionBuilder(new Pose2d(10, 19, -45)).
                 strafeToLinearHeading(new Vector2d(6.5, 19), Math.toRadians(-35)).
@@ -48,21 +48,21 @@ public class Red9 extends LinearOpMode {
         Action score7 = drive.actionBuilder(new Pose2d(9,-8,-45)).
                 strafeToConstantHeading(new Vector2d(9, 14)).
                 build();
-        Action sub = drive.actionBuilder(new Pose2d(10, 17, Math.toRadians(-27))).
+        Action sub = drive.actionBuilder(new Pose2d(10, 17, Math.toRadians(-20))).
                 afterDisp(3, lift.liftDown()).
                 //afterDisp(48, pidf.sweeperOut()).
-                afterDisp(49, autoOptimize.speedCollect1()).
-                splineTo(new Vector2d(47, -14.5), Math.toRadians(-93)).
+                afterDisp(32, autoOptimize.speedCollect3()).
+                splineTo(new Vector2d(52, -15.5), Math.toRadians(-93)).
                 build();
         Action afterSub = drive.actionBuilder(new Pose2d(52,-11, -45)).
-                afterDisp(7, autoOptimize.speedCollect2()).
-                strafeToConstantHeading(new Vector2d(9, 17.5)).
+                afterDisp(6, autoOptimize.speedCollect2()).
+                strafeToConstantHeading(new Vector2d(8, 18)).
                 build();
         Action collect6 = drive.actionBuilder(new Pose2d(12, 17, Math.toRadians(-10))).
                 setReversed(false).
                 afterDisp(4, lift.liftDown()).
                 afterDisp(55, pidf.sweeperOut()).
-                afterDisp(42, autoOptimize.speedCollect()).
+                afterDisp(44, autoOptimize.speedCollect3()).
                 splineTo(new Vector2d(48, -15), Math.toRadians(-100)).
                 build();
         Action jk = drive.actionBuilder(new Pose2d(52,-13,-45)).
@@ -71,47 +71,53 @@ public class Red9 extends LinearOpMode {
                 strafeToConstantHeading(new Vector2d(8.7, 18)).
                 build();
         //Actually collecting 8
-        Action heading = drive.actionBuilder(new Pose2d(10, 18, Math.toRadians(-15))).
+        Action heading = drive.actionBuilder(new Pose2d(10, 18, Math.toRadians(-30))).
                 setReversed(false).
                 afterDisp(4, lift.liftDown()).
                 afterDisp(52, pidf.sweeperOut()).
-                afterDisp(45, autoOptimize.speedCollect()).
-                splineTo(new Vector2d(50, -14.5), Math.toRadians(-90)).
+                afterDisp(50, autoOptimize.speedCollect3()).
+                splineTo(new Vector2d(53.5, -16), Math.toRadians(-90)).
                 build();
         //Actually collecting 7
         Action collect8 = drive.actionBuilder(new Pose2d(10, 18, Math.toRadians(-22))).
                 setReversed(false).
                 afterDisp(4, lift.liftDown()).
                 afterDisp(55, pidf.sweeperOut()).
-                afterDisp(41, autoOptimize.speedCollect()).
-                splineTo(new Vector2d(52, -13.7), Math.toRadians(-80)).
+                afterDisp(41, autoOptimize.speedCollect3()).
+                splineTo(new Vector2d(51, -15.5), Math.toRadians(-86)).
                 build();
         //Collecting 9
-        Action collectLast = drive.actionBuilder(new Pose2d(10, 18, Math.toRadians(-22))).
+        Action collectLast = drive.actionBuilder(new Pose2d(10, 18, Math.toRadians(-24))).
                 setReversed(false).
                 afterDisp(4, lift.liftDown()).
                 afterDisp(55, pidf.sweeperOut()).
-                afterDisp(42, autoOptimize.speedCollect()).
-                splineTo(new Vector2d(47.5, -15), Math.toRadians(-105)).
+                afterDisp(45, autoOptimize.speedCollect3()).
+                splineTo(new Vector2d(47, -15), Math.toRadians(-108)).
                 build();
         Action score8 = drive.actionBuilder(new Pose2d(50, -13,-45)).
                 setReversed(true).
-                afterDisp(8, autoOptimize.speedCollect2()).
-                strafeToConstantHeading(new Vector2d(9, 17)).
+                afterDisp(7, autoOptimize.speedCollect2()).
+                strafeToConstantHeading(new Vector2d(8, 16)).
                 build();
         Action score9 = drive.actionBuilder(new Pose2d(50, -13,-45)).
                 setReversed(true).
-                afterDisp(8, autoOptimize.speedCollect2()).
-                strafeToConstantHeading(new Vector2d(9, 17)).
+                afterDisp(6, autoOptimize.speedCollect2()).
+                strafeToConstantHeading(new Vector2d(8, 16)).
                 build();
         Action scoreLast = drive.actionBuilder(new Pose2d(50, -13,-45)).
                 setReversed(true).
-                afterDisp(8, autoOptimize.speedCollect2()).
-                strafeToConstantHeading(new Vector2d(9, 17)).
+                afterDisp(5.5, autoOptimize.speedCollect2()).
+                strafeToConstantHeading(new Vector2d(8, 17)).
                 build();
         Action end = drive.actionBuilder(new Pose2d(6.5, 14.3, Math.toRadians(-30))).
                 afterDisp(1, lift.liftDown()).
                 splineTo(new Vector2d(30, 0), Math.toRadians(0)).
+                build();
+        Action score10 = drive.actionBuilder(new Pose2d(10, -10,-45)).
+                strafeToConstantHeading(new Vector2d(6.5, 16.5)).
+                build();
+        Action collect10 = drive.actionBuilder(new Pose2d(10, 18, Math.toRadians(-90))).
+                strafeToConstantHeading(new Vector2d(-1, -10)).
                 build();
         Actions.runBlocking(pidf.initPositions());
 
@@ -119,8 +125,7 @@ public class Red9 extends LinearOpMode {
 
         Actions.runBlocking(
                 new SequentialAction(
-                        new ParallelAction(toDeliver, pidf.extendCollection()),
-                        new ParallelAction(lift.liftDown(), pidf.collectRun()),
+                        new ParallelAction(toDeliver),
                         lift.liftUp(),
                         new ParallelAction(score2, lift.liftDown(), pidf.collectRun()),
                         new ParallelAction(score3, lift.liftUp()),
@@ -136,7 +141,9 @@ public class Red9 extends LinearOpMode {
                         new ParallelAction(score9),
                         new ParallelAction(collectLast, pidf.sweeperIn()),
                         new ParallelAction(scoreLast),
-                        new ParallelAction(end, pidf.retractCollection())
+                        new ParallelAction(collect10, pidf.sweeperIn(), autoOptimize.speedCollect(), lift.liftDown()),
+                        new ParallelAction(score10, autoOptimize.speedCollect2()),
+                        new ParallelAction(end, pidf.retractCollection(), lift.liftDown())
 
                 ));
     }
