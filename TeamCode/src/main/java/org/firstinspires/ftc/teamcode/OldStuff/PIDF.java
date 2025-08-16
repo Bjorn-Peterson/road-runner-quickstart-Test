@@ -31,7 +31,7 @@ public class PIDF {
         RESET,
         REJECT,
         DELIVER,
-        SPEC,
+        INTAKE,
         SPECIMEN2,
 
     }
@@ -59,7 +59,7 @@ public class PIDF {
     int retracted = 10;
     int mid = 300;
     int shortPos = 100;
-    double collect = .45;
+    double collect = .44;
     double transfer = .35;
     double xHeight = .24;
     double initPos = .12;
@@ -138,10 +138,10 @@ public class PIDF {
     }
 
     public void tele(boolean isRed) {
-        if (theOpMode.gamepad1.dpad_right) {
-            sweep.setPosition(in);
-        }
-        else if (theOpMode.gamepad2.right_bumper) {
+//        if (theOpMode.gamepad1.dpad_right) {
+//            sweep.setPosition(in);
+//        }
+        if (theOpMode.gamepad2.right_bumper) {
             sweep.setPosition(in);
         }
         else if (theOpMode.gamepad2.left_bumper) {
@@ -172,6 +172,9 @@ public class PIDF {
 
         if (theOpMode.gamepad1.b) {
             extendState = ExtendState.EJECT;
+        }
+        if (theOpMode.gamepad1.dpad_right) {
+            extendState = ExtendState.INTAKE;
         }
         if (theOpMode.gamepad1.ps) {
             extendState = ExtendState.RESET;
@@ -280,7 +283,7 @@ public class PIDF {
                     lCollection.setPosition(xHeight);
                     extendState = ExtendState.RETRACT;
                     theOpMode.telemetry.addData("Beam", "Broken");
-
+                    beamTimer.reset();
                 }
                 if (theOpMode.gamepad1.y) {
                     target = mid;
@@ -324,6 +327,9 @@ public class PIDF {
                     if (Math.abs(extend.getCurrentPosition() - retracted) < 40 && !liftTouch.getState()) {
                         collection.setPower(.48);
                     }
+                    if (extend.getCurrentPosition() - retracted > 40 && beamTimer.seconds() > 2.5) {
+                        extend.setPower(-.4);
+                    }
                 }
                 if (!dBeam.getState()) {
                     door.setPosition(.15);
@@ -357,6 +363,16 @@ public class PIDF {
                     extendState = ExtendState.START;
                 }
                 break;
+            case INTAKE:
+                if (theOpMode.gamepad1.dpad_right) {
+                    collection.setPower(.45);
+                } else {
+                    collection.setPower(0);
+                    extendState = ExtendState.START;
+                }
+                break;
+
+
             case REJECT:
                 target = extended;
                 collection.setPower(-.6);

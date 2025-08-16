@@ -57,7 +57,7 @@ public class AutoOptimize {
     int retracted = 5;
     int mid = 300;
     int shortPos = 100;
-    double collect = .45;
+    double collect = .44;
     double transfer = .33;
     double xHeight = .29;
 
@@ -782,7 +782,7 @@ public class AutoOptimize {
                     break;
                 case REJECT:
                     target = 520;
-                    collection.setPower(.4);
+                    collection.setPower(.45);
                     if (beamTimer.seconds() >= .2 && cBeam.getState()) {
                         collection.setPower(.7);
                         extendState = ExtendState.EXTEND;
